@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Seru 🎯</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top left, #7c3aed 0, transparent 35%),
+            radial-gradient(circle at bottom right, #ec4899 0, transparent 35%),
+            linear-gradient(135deg, #111827, #1e1b4b);
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 25px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 650px;
+    }
+
+    .card {
+        background: rgba(255,255,255,.10);
+        border: 1px solid rgba(255,255,255,.18);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 28px;
+        padding: 30px;
+        box-shadow: 0 25px 70px rgba(0,0,0,.35);
+    }
+
+    .logo {
+        width: 75px;
+        height: 75px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        box-shadow: 0 10px 30px rgba(236,72,153,.35);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #d1d5db;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .field {
+        margin-bottom: 17px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,.2);
+        background: rgba(255,255,255,.08);
+        color: white;
+        outline: none;
+        font-size: 15px;
+        transition: .2s;
+    }
+
+    input::placeholder {
+        color: #9ca3af;
+    }
+
+    input:focus {
+        border-color: #c084fc;
+        box-shadow: 0 0 0 3px rgba(192,132,252,.15);
+    }
+
+    .btn {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: .2s;
+        margin-top: 5px;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(236,72,153,.3);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .top-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 10px;
+    }
+
+    .badge {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.1);
+        color: #e5e7eb;
+        font-size: 13px;
+    }
+
+    .timer {
+        color: #fda4af;
+        font-weight: bold;
+    }
+
+    .progress-bg {
+        width: 100%;
+        height: 9px;
+        border-radius: 99px;
+        background: rgba(255,255,255,.12);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .progress {
+        width: 0%;
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        transition: width .3s;
+    }
+
+    .question {
+        font-size: 23px;
+        line-height: 1.4;
+        margin-bottom: 22px;
+    }
+
+    .options {
+        display: grid;
+        gap: 12px;
+    }
+
+    .option {
+        padding: 15px;
+        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,.15);
+        background: rgba(255,255,255,.07);
+        cursor: pointer;
+        transition: .2s;
+        line-height: 1.4;
+    }
+
+    .option:hover {
+        background: rgba(255,255,255,.14);
+        transform: translateX(3px);
+    }
+
+    .option.selected {
+        background: linear-gradient(
+            135deg,
+            rgba(139,92,246,.5),
+            rgba(236,72,153,.4)
+        );
+        border-color: #c084fc;
+    }
+
+    .option.correct {
+        background: rgba(34,197,94,.25);
+        border-color: #22c55e;
+    }
+
+    .option.wrong {
+        background: rgba(239,68,68,.25);
+        border-color: #ef4444;
+    }
+
+    .quiz-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 25px;
+        gap: 10px;
+    }
+
+    .next-btn {
+        width: auto;
+        padding: 12px 22px;
+        margin: 0;
+    }
+
+    .score-circle {
+        width: 150px;
+        height: 150px;
+        margin: 20px auto;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background:
+            radial-gradient(circle, #1e1b4b 55%, transparent 56%),
+            conic-gradient(#ec4899 0deg, #8b5cf6 260deg, rgba(255,255,255,.1) 260deg);
+    }
+
+    .score-number {
+        font-size: 35px;
+        font-weight: bold;
+    }
+
+    .result-message {
+        text-align: center;
+        color: #d1d5db;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .result-info {
+        background: rgba(255,255,255,.07);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .result-info div {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .result-info div:last-child {
+        border-bottom: none;
+    }
+
+    .small {
+        font-size: 12px;
+        color: #9ca3af;
+        text-align: center;
+        margin-top: 16px;
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        top: -20px;
+        animation: fall 3s linear forwards;
+        z-index: 999;
+    }
+
+    @keyframes fall {
+        to {
+            transform: translateY(110vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    .shake {
+        animation: shake .3s;
+    }
+
+    @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 12px;
+        }
+
+        .card {
+            padding: 22px;
+            border-radius: 22px;
+        }
+
+        h1 {
+            font-size: 27px;
+        }
+
+        .question {
+            font-size: 20px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HALAMAN DATA PESERTA -->
+    <div class="card" id="registerPage">
+
+        <div class="logo">🎯</div>
+
+        <h1>QUIZ CHALLENGE</h1>
+
+        <p class="subtitle">
+            Isi data kamu dulu, lalu buktikan seberapa jago kamu!
+            😎🔥
+        </p>
+
+        <form id="registerForm">
+
+            <div class="field">
+                <label for="name">👤 Nama Lengkap</label>
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Masukkan nama kamu"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="tiktok">🎵 Username TikTok</label>
+                <input
+                    type="text"
+                    id="tiktok"
+                    placeholder="@usernamekamu"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="phone">📱 Nomor HP</label>
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="08xxxxxxxxxx"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label for="city">📍 Kota</label>
+                <input
+                    type="text"
+                    id="city"
+                    placeholder="Contoh: Kediri"
+                    required
+                >
+            </div>
+
+            <button class="btn" type="submit">
+                🚀 MULAI QUIZ
+            </button>
+
+        </form>
+
+        <p class="small">
+            Data hanya digunakan untuk mengikuti quiz ini.
+        </p>
+    </div>
+
+
+    <!-- HALAMAN QUIZ -->
+    <div class="card hidden" id="quizPage">
+
+        <div class="top-info">
+            <div class="badge" id="questionNumber">
+                Soal 1/10
+            </div>
+
+            <div class="badge timer">
+                ⏱️ <span id="timer">30</span>s
+            </div>
+        </div>
+
+        <div class="progress-bg">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="question" id="questionText"></div>
+
+        <div class="options" id="options"></div>
+
+        <div class="quiz-footer">
+            <div class="badge" id="scorePreview">
+                ⭐ Skor: 0
+            </div>
+
+            <button
+                class="btn next-btn"
+                id="nextButton"
+                onclick="nextQuestion()"
+            >
+                Berikutnya →
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- HALAMAN HASIL -->
+    <div class="card hidden" id="resultPage">
+
+        <div class="logo" id="resultEmoji">
+            🏆
+        </div>
+
+        <h1 id="resultTitle">
+            Quiz Selesai!
+        </h1>
+
+        <div class="score-circle">
+            <div class="score-number" id="finalScore">
+                0
+            </div>
+
+            <div>
+                Poin
+            </div>
+        </div>
+
+        <p class="result-message" id="resultMessage"></p>
+
+        <div class="result-info">
+
+            <div>
+                <span>👤 Nama</span>
+                <strong id="resultName">-</strong>
+            </div>
+
+            <div>
+                <span>🎵 TikTok</span>
+                <strong id="resultTikTok">-</strong>
+            </div>
+
+            <div>
+                <span>📱 Nomor HP</span>
+                <strong id="resultPhone">-</strong>
+            </div>
+
+            <div>
+                <span>📍 Kota</span>
+                <strong id="resultCity">-</strong>
+            </div>
+
+            <div>
+                <span>✅ Benar</span>
+                <strong id="correctAnswers">0</strong>
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="restartQuiz()">
+            🔄 Ikut Quiz Lagi
+        </button>
+
+        <p class="small">
+            Terima kasih sudah ikut Quiz Challenge! ❤️
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const questions = [
+    {
+        question: "Planet apa yang dikenal sebagai Planet Merah?",
+        options: [
+            "Venus",
+            "Mars",
+            "Jupiter",
+            "Saturnus"
+        ],
+        answer: 1
+    },
+    {
+        question: "Hewan darat tercepat di dunia adalah...",
+        options: [
+            "Singa",
+            "Kuda",
+            "Cheetah",
+            "Harimau"
+        ],
+        answer: 2
+    },
+    {
+        question: "Ibu kota Indonesia adalah...",
+        options: [
+            "Bandung",
+            "Surabaya",
+            "Jakarta",
+            "Yogyakarta"
+        ],
+        answer: 2
+    },
+    {
+        question: "Berapa jumlah warna pada pelangi?",
+        options: [
+            "5",
+            "6",
+            "7",
+            "8"
+        ],
+        answer: 2
+    },
+    {
+        question: "Bahasa pemrograman yang digunakan untuk membuat halaman web menjadi interaktif adalah...",
+        options: [
+            "JavaScript",
+            "Photoshop",
+            "Excel",
+            "PowerPoint"
+        ],
+        answer: 0
+    },
+    {
+        question: "Hewan yang sering disebut sebagai raja hutan adalah...",
+        options: [
+            "Gajah",
+            "Singa",
+            "Serigala",
+            "Beruang"
+        ],
+        answer: 1
+    },
+    {
+        question: "Satuan dasar untuk mengukur panjang dalam sistem SI adalah...",
+        options: [
+            "Liter",
+            "Gram",
+            "Meter",
+            "Detik"
+        ],
+        answer: 2
+    },
+    {
+        question: "Benua terbesar di dunia adalah...",
+        options: [
+            "Afrika",
+            "Eropa",
+            "Asia",
+            "Amerika"
+        ],
+        answer: 2
+    },
+    {
+        question: "Air membeku pada suhu...",
+        options: [
+            "0°C",
+            "10°C",
+            "50°C",
+            "100°C"
+        ],
+        answer: 0
+    },
+    {
+        question: "Berapa hasil dari 12 × 8?",
+        options: [
+            "86",
+            "96",
+            "108",
+            "112"
+        ],
+        answer: 1
+    }
+];
+
+
+let currentQuestion = 0;
+let score = 0;
+let correct = 0;
+let selectedAnswer = null;
+let timeLeft = 30;
+let timerInterval;
+
+let participant = {
+    name: "",
+    tiktok: "",
+    phone: "",
+    city: ""
+};
+
+
+const registerPage = document.getElementById("registerPage");
+const quizPage = document.getElementById("quizPage");
+const resultPage = document.getElementById("resultPage");
+
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("options");
+const questionNumber = document.getElementById("questionNumber");
+const progress = document.getElementById("progress");
+const timer = document.getElementById("timer");
+const scorePreview = document.getElementById("scorePreview");
+const nextButton = document.getElementById("nextButton");
+
+
+document.getElementById("registerForm").addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    participant.name = document.getElementById("name").value.trim();
+    participant.tiktok = document.getElementById("tiktok").value.trim();
+    participant.phone = document.getElementById("phone").value.trim();
+    participant.city = document.getElementById("city").value.trim();
+
+    if (
+        participant.name === "" ||
+        participant.tiktok === "" ||
+        participant.phone === "" ||
+        participant.city === ""
+    ) {
+        alert("Mohon isi semua data terlebih dahulu.");
+        return;
+    }
+
+    registerPage.classList.add("hidden");
+    quizPage.classList.remove("hidden");
+
+    loadQuestion();
+
+});
+
+
+function loadQuestion() {
+
+    const q = questions[currentQuestion];
+
+    selectedAnswer = null;
+
+    questionNumber.textContent =
+        `Soal ${currentQuestion + 1}/${questions.length}`;
+
+    progress.style.width =
+        `${(currentQuestion / questions.length) * 100}%`;
+
+    questionText.textContent = q.question;
+
+    optionsContainer.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+
+        const div = document.createElement("div");
+
+        div.className = "option";
+
+        div.textContent =
+            `${String.fromCharCode(65 + index)}. ${option}`;
+
+        div.onclick = function() {
+            selectAnswer(index, div);
+        };
+
+        optionsContainer.appendChild(div);
+
+    });
+
+    nextButton.textContent =
+        currentQuestion === questions.length - 1
+            ? "🏁 Selesai"
+            : "Berikutnya →";
+
+    startTimer();
+
+}
+
+
+function selectAnswer(index, element) {
+
+    selectedAnswer = index;
+
+    document.querySelectorAll(".option").forEach(option => {
+        option.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+
+function startTimer() {
+
+    clearInterval(timerInterval);
+
+    timeLeft = 30;
+
+    timer.textContent = timeLeft;
+
+    timerInterval = setInterval(() => {
+
+        timeLeft--;
+
+        timer.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+
+            clearInterval(timerInterval);
+
+            if (selectedAnswer === null) {
+                selectedAnswer = -1;
+            }
+
+            nextQuestion();
+
+        }
+
+    }, 1000);
+
+}
+
+
+function nextQuestion() {
+
+    clearInterval(timerInterval);
+
+    if (selectedAnswer === null) {
+
+        quizPage.classList.add("shake");
+
+        setTimeout(() => {
+            quizPage.classList.remove("shake");
+        }, 400);
+
+        alert("Pilih salah satu jawaban dulu ya! 😄");
+
+        startTimer();
+
+        return;
+    }
+
+
+    const q = questions[currentQuestion];
+
+    const options = document.querySelectorAll(".option");
+
+
+    if (selectedAnswer === q.answer) {
+
+        score += 10;
+        correct++;
+
+        if (options[selectedAnswer]) {
+            options[selectedAnswer].classList.add("correct");
+        }
+
+    } else {
+
+        if (options[selectedAnswer]) {
+            options[selectedAnswer].classList.add("wrong");
+        }
+
+        if (options[q.answer]) {
+            options[q.answer].classList.add("correct");
+        }
+
+    }
+
+
+    scorePreview.textContent =
+        `⭐ Skor: ${score}`;
+
+
+    setTimeout(() => {
+
+        if (currentQuestion < questions.length - 1) {
+
+            currentQuestion++;
+
+            loadQuestion();
+
+        } else {
+
+            showResult();
+
+        }
+
+    }, 500);
+
+}
+
+
+function showResult() {
+
+    clearInterval(timerInterval);
+
+    quizPage.classList.add("hidden");
+    resultPage.classList.remove("hidden");
+
+    progress.style.width = "100%";
+
+    document.getElementById("finalScore").textContent =
+        score;
+
+    document.getElementById("resultName").textContent =
+        participant.name;
+
+    document.getElementById("resultTikTok").textContent =
+        participant.tiktok;
+
+    document.getElementById("resultPhone").textContent =
+        participant.phone;
+
+    document.getElementById("resultCity").textContent =
+        participant.city;
+
+    document.getElementById("correctAnswers").textContent =
+        `${correct} / ${questions.length}`;
+
+
+    let title = "";
+    let message = "";
+    let emoji = "🏆";
+
+
+    if (score === 100) {
+
+        title = "PERFECT SCORE! 🔥";
+        message =
+            "Gila! Semua jawaban kamu benar. Kamu benar-benar jago!";
+
+        emoji = "👑";
+
+        createConfetti();
+
+    } else if (score >= 80) {
+
+        title = "LUAR BIASA! 🎉";
+        message =
+            "Hasil kamu keren banget! Tinggal sedikit lagi menuju perfect score.";
+
+        emoji = "🥳";
+
+        createConfetti();
+
+    } else if (score >= 60) {
+
+        title = "MANTAP! 😎";
+        message =
+            "Lumayan banget! Kamu sudah menguasai sebagian besar soal.";
+
+        emoji = "😎";
+
+    } else if (score >= 40) {
+
+        title = "TERUS COBA! 💪";
+        message =
+            "Jangan menyerah. Coba lagi dan pecahkan skor kamu sendiri!";
+
+        emoji = "💪";
+
+    } else {
+
+        title = "SEMANGAT! 🚀";
+        message =
+            "Belum maksimal? Tidak masalah. Yuk coba lagi!";
+
+        emoji = "🚀";
+
+    }
+
+
+    document.getElementById("resultTitle").textContent =
+        title;
+
+    document.getElementById("resultMessage").textContent =
+        message;
+
+    document.getElementById("resultEmoji").textContent =
+        emoji;
+
+}
+
+
+function createConfetti() {
+
+    const colors = [
+        "#ec4899",
+        "#8b5cf6",
+        "#22c55e",
+        "#facc15",
+        "#38bdf8"
+    ];
+
+    for (let i = 0; i < 80; i++) {
+
+        const confetti = document.createElement("div");
+
+        confetti.className = "confetti";
+
+        confetti.style.left =
+            Math.random() * 100 + "vw";
+
+        confetti.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+
+        confetti.style.animationDelay =
+            Math.random() * 1.5 + "s";
+
+        confetti.style.transform =
+            `rotate(${Math.random() * 360}deg)`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+            confetti.remove();
+        }, 4500);
+
+    }
+
+}
+
+
+function restartQuiz() {
+
+    currentQuestion = 0;
+    score = 0;
+    correct = 0;
+    selectedAnswer = null;
+
+    document.getElementById("registerForm").reset();
+
+    resultPage.classList.add("hidden");
+    registerPage.classList.remove("hidden");
+
+    scorePreview.textContent = "⭐ Skor: 0";
+
+}
+
+
+</script>
+
+</body>
+</html>
